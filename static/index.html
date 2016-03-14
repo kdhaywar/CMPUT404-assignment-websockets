@@ -6,7 +6,7 @@
     <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
     <meta name="viewport" content="width=device-width" />
     <meta name="license" content="
-        Copyright 2013 Google, Abram Hindle
+        Copyright 2013 Google, Abram Hindle, Kyle Hayward
         
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -122,9 +122,13 @@ function getPosition(e) {
 }
 
 function addEntity(entity, data) {
-    world[entity] = data;
-    drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just modified!
+         world[entity] = data;
+         drawNextFrame(); // (but should we?)
+         //XXX: Send a XHTML Request that updates the entity you just modified!
+         var object = {};
+         object[entity] = data;
+         socket.send(JSON.stringify(object));
+	 
 }
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -253,7 +257,14 @@ function wsSetup() {
     var url = "ws://"+host+"/subscribe";   
     socket = new WebSocket(url);
     socket.onopen = function() {
-        //XXX: TODO What are you going to do here?
+         //XXX: TODO What are you going to do here?
+	 //change
+	 var xhr = new XMLHttpRequest();
+         xhr.open('GET', 'http://'+host+'/world', false);
+         xhr.send(null);
+         for (var key in serverWorld) {
+             world[key] = serverWorld[key]
+         }
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
@@ -261,7 +272,15 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
-            //XXX: TODO What are you going to do here?            
+            //XXX: TODO What are you going to do here?
+	    //change
+            var message = JSON.parse(msg.data);
+            for (key in message) {
+		if (world[key] != message[key]) {
+                    world[key] = message[key];
+		    drawNextFrame();
+		}
+            }
         } catch (e) {
             alert("socket on message: " + e);
         }

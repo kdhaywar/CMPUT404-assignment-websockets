@@ -140,9 +140,9 @@ def subscribe_socket(ws):
 def flask_post_json():
     '''Ah the joys of frameworks! They do so much work for you
        that they get in the way of sane operation!'''
-    if (request.json is not None):
+    if (request.json != None):
         return request.json
-    elif (request.data is not None and request.data != ''):
+    elif (request.data != None and request.data != ''):
         return json.loads(request.data)
     else:
         return json.loads(request.form.keys()[0])
@@ -159,6 +159,7 @@ def update(entity):
 
 @app.route("/world", methods=['POST', 'GET'])    
 def world():
+    print myWorld.world()
     '''you should probably return the world here'''
     return json.dumps(myWorld.world())
 
@@ -166,8 +167,7 @@ def world():
 @app.route("/entity/<entity>")
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    e = myWorld.get(entity)
-    return json.dumps(e)
+    return json.dumps(myWorld.get(entity))
 
 
 @app.route("/clear", methods=['POST', 'GET'])
