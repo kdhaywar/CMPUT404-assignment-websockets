@@ -235,16 +235,16 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'colour':'yellow'});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'colour':'green'});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
-                          'radius':10});
+    addEntityWithoutName({'x':x,'y':y,'colour':'red',
+                          'radius':15});
 });
 
 
@@ -258,12 +258,11 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
          //XXX: TODO What are you going to do here?
-	 //change
 	 var xhr = new XMLHttpRequest();
          xhr.open('GET', 'http://'+host+'/world', false);
          xhr.send(null);
-         for (var key in serverWorld) {
-             world[key] = serverWorld[key]
+         for (var key in World) {
+             world[key] = World[key]
          }
     };
     socket.onerror = function(msg) {
@@ -273,7 +272,6 @@ function wsSetup() {
         try {
             debug("WebSocket Recv:" + msg.data);
             //XXX: TODO What are you going to do here?
-	    //change
             var message = JSON.parse(msg.data);
             for (key in message) {
 		if (world[key] != message[key]) {

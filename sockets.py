@@ -106,10 +106,11 @@ def read_ws(ws,client):
     try:
         while True:
             msg = ws.receive()
-            print "WS RECV: %s" % msg
-            if (msg is not None):
-                packet = json.loads(msg)
-                send_all_json(packet)
+            if(msg is not None):
+                msg = json.loads(msg)
+                for key in msg:
+                    value = msg[key]
+                    myWorld.set(key, value)
             else:
                 break
     except:
@@ -120,12 +121,11 @@ def read_ws(ws,client):
 def subscribe_socket(ws):
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
-    # change
     client = Client()
     clients.append(client)
-
     event = gevent.spawn(read_ws, ws, client)
     try:
+        
         while True:
             ws.send(client.get())
     except:
@@ -134,7 +134,7 @@ def subscribe_socket(ws):
         clients.remove(client)
         gevent.kill(event)
 
-    return None
+    #return None
 
 
 def flask_post_json():
@@ -159,7 +159,6 @@ def update(entity):
 
 @app.route("/world", methods=['POST', 'GET'])    
 def world():
-    print myWorld.world()
     '''you should probably return the world here'''
     return json.dumps(myWorld.world())
 
