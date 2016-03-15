@@ -253,17 +253,39 @@ function update() {
 }
 
 
+     function sendJSONXMLHTTPRequest(url, objects, callback) {
+	 var xhr = new XMLHttpRequest();
+	 xhr.onreadystatechange = function () {
+	     if (xhr.readyState==4) {
+		 try {
+		     if (xhr.status==200) {
+			 parsed = JSON.parse(xhr.responseText);
+			 callback(parsed);
+		     }
+		 } 
+		 catch(e) {
+		     alert('Error: ' + e.name);
+		 }
+	     }
+	 };
+	 if (objects){ //POST
+	     xhr.open('POST', url);
+	     xhr.overrideMimeType("application/json");
+	     xhr.setRequestHeader("Accept", "application/json");
+	     xhr.send(JSON.stringify(objects));
+	 }
+	 else { //GET
+	     xhr.open('GET', url);
+	     xhr.send();
+	 } 
+     }
+     
 function wsSetup() {
     var url = "ws://"+host+"/subscribe";   
     socket = new WebSocket(url);
-    socket.onopen = function() {
-         //XXX: TODO What are you going to do here?
-	 var xhr = new XMLHttpRequest();
-         xhr.open('GET', 'http://'+host+'/world', false);
-         xhr.send(null);
-         for (var key in World) {
-             world[key] = World[key]
-         }
+	 socket.onopen = function() {
+	     sendJSONXMLHTTPRequest("/world", null, function(data){world=data; drawNextFrame();});
+         
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
